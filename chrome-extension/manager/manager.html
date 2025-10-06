@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TikTok GMAX CB自动化管理平台</title>
+  <link rel="stylesheet" href="manager.css">
+</head>
+<body>
+  <!-- 加载动画 -->
+  <div id="loading-overlay" class="loading-overlay">
+    <div class="loading-content">
+      <div class="loading-spinner"></div>
+      <p>正在加载管理平台...</p>
+    </div>
+  </div>
+
+  <!-- 主应用容器 -->
+  <div id="app" class="app">
+    <!-- 可拖拽标题栏 -->
+    <div class="title-bar" id="title-bar">
+      <div class="title-content">
+        <div class="title-left">
+          <span class="logo-icon">🚀</span>
+          <span class="title-text">TikTok GMAX CB自动化管理平台</span>
+        </div>
+        <div class="title-controls">
+          <button class="title-btn minimize-btn" id="minimize-btn" title="最小化">
+            <span>━</span>
+          </button>
+          <button class="title-btn close-btn" id="close-btn" title="关闭">
+            <span>✕</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 主界面布局 -->
+    <div class="main-layout">
+      <!-- 左侧导航栏 -->
+      <nav class="sidebar" id="sidebar">
+        <div class="nav-items">
+          <div class="nav-item active" data-page="monitor">
+            <span class="nav-icon">📊</span>
+            <span class="nav-text">实时监控</span>
+          </div>
+          <div class="nav-item" data-page="rules">
+            <span class="nav-icon">⚙️</span>
+            <span class="nav-text">规则配置</span>
+          </div>
+          <div class="nav-item" data-page="campaigns">
+            <span class="nav-icon">📊</span>
+            <span class="nav-text">Campaign列表</span>
+          </div>
+          <div class="nav-item" data-page="materials">
+            <span class="nav-icon">🎬</span>
+            <span class="nav-text">素材列表</span>
+          </div>
+          <div class="nav-item" data-page="history">
+            <span class="nav-icon">📋</span>
+            <span class="nav-text">历史记录</span>
+          </div>
+          <div class="nav-item" data-page="tasks">
+            <span class="nav-icon">🎯</span>
+            <span class="nav-text">任务管理</span>
+          </div>
+          <div class="nav-item" data-page="settings">
+            <span class="nav-icon">🔧</span>
+            <span class="nav-text">系统设置</span>
+          </div>
+        </div>
+
+        <div class="nav-footer">
+          <div class="nav-item" id="back-to-main">
+            <span class="nav-icon">🏠</span>
+            <span class="nav-text">返回主页</span>
+          </div>
+        </div>
+      </nav>
+
+      <!-- 右侧内容区域 -->
+      <main class="content-area">
+        <!-- 实时监控页面 -->
+        <div id="monitor-page" class="page active">
+          <div class="page-header">
+            <h1>实时监控</h1>
+            <div class="page-actions">
+              <button class="btn btn-primary" id="refresh-monitor">
+                <span>🔄</span>
+                刷新数据
+              </button>
+            </div>
+          </div>
+
+          <!-- 监控卡片 -->
+          <div class="monitor-cards">
+            <div class="monitor-card budget-card">
+              <div class="card-header">
+                <h3>💰 预算状态</h3>
+              </div>
+              <div class="card-content">
+                <div class="budget-item">
+                  <div class="budget-label">今日消耗</div>
+                  <div class="budget-value">
+                    <span class="amount" id="daily-spent">$0</span>
+                    <span class="limit">/ $<span id="daily-limit">100</span></span>
+                  </div>
+                  <div class="progress-bar">
+                    <div class="progress-fill" id="daily-progress"></div>
+                  </div>
+                </div>
+                <div class="budget-item">
+                  <div class="budget-label">本周消耗</div>
+                  <div class="budget-value">
+                    <span class="amount" id="weekly-spent">$0</span>
+                    <span class="limit">/ $<span id="weekly-limit">500</span></span>
+                  </div>
+                  <div class="progress-bar">
+                    <div class="progress-fill" id="weekly-progress"></div>
+                  </div>
+                </div>
+                <div class="budget-item">
+                  <div class="budget-label">剩余预算</div>
+                  <div class="budget-value">
+                    <span class="amount highlight" id="remaining-budget">$100</span>
+                    <small>可用CB: <span id="available-cb">10</span>个</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="monitor-card activity-card">
+              <div class="card-header">
+                <h3>🔥 活跃CB监控</h3>
+              </div>
+              <div class="card-content">
+                <div class="activity-stats">
+                  <div class="stat-item">
+                    <div class="stat-number" id="active-cb-count">0</div>
+                    <div class="stat-label">活跃数量</div>
+                  </div>
+                  <div class="stat-divider">/</div>
+                  <div class="stat-item">
+                    <div class="stat-number" id="max-cb-count">5</div>
+                    <div class="stat-label">最大限制</div>
+                  </div>
+                </div>
+                <div class="activity-progress">
+                  <div class="progress-ring">
+                    <svg class="progress-ring-svg" width="80" height="80">
+                      <circle cx="40" cy="40" r="30" fill="none" stroke="#e9ecef" stroke-width="6"/>
+                      <circle cx="40" cy="40" r="30" fill="none" stroke="#007bff" stroke-width="6"
+                              stroke-dasharray="188.5" stroke-dashoffset="188.5"
+                              id="activity-progress-circle" transform="rotate(-90 40 40)"/>
+                    </svg>
+                    <div class="progress-percentage" id="activity-percentage">0%</div>
+                  </div>
+                </div>
+                <div class="activity-info">
+                  <div class="info-item">
+                    <span class="info-label">待CB素材:</span>
+                    <span class="info-value" id="pending-materials">-</span>
+                  </div>
+                  <div class="info-item">
+                    <span class="info-label">最近CB:</span>
+                    <span class="info-value" id="recent-cb">-</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="monitor-card rules-card">
+              <div class="card-header">
+                <h3>📋 规则执行状态</h3>
+              </div>
+              <div class="card-content">
+                <div class="rules-list" id="active-rules">
+                  <!-- 动态填充活跃规则 -->
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 素材状态分布 -->
+          <div class="material-distribution">
+            <div class="section-header">
+              <h3>素材状态分布</h3>
+              <div class="section-actions">
+                <!-- Campaign筛选器 -->
+                <div class="campaign-selector">
+                  <label for="monitor-campaign-filter">Campaign:</label>
+                  <select id="monitor-campaign-filter" class="form-select">
+                    <option value="">选择Campaign</option>
+                  </select>
+                </div>
+                <button class="btn btn-primary" id="refresh-material-stats">刷新数据</button>
+                <button class="btn btn-secondary" id="export-stats-data">导出数据</button>
+              </div>
+            </div>
+            
+            <!-- 当前状态分布 -->
+            <div class="current-distribution">
+              <h4>当前状态分布</h4>
+              <div class="distribution-charts">
+                <div class="chart-container">
+                  <canvas id="status-chart" width="400" height="200"></canvas>
+                </div>
+                <div class="status-stats" id="status-stats">
+                  <!-- 动态填充状态统计 -->
+                </div>
+              </div>
+            </div>
+
+            <!-- 趋势分析 -->
+            <div class="trend-analysis">
+              <div class="trend-header">
+                <h4>趋势分析</h4>
+                <div class="trend-controls">
+                  <select id="trend-timerange" class="form-select">
+                    <option value="7">最近7天</option>
+                    <option value="14">最近14天</option>
+                    <option value="30">最近30天</option>
+                  </select>
+                  <select id="trend-metric" class="form-select">
+                    <option value="delivery_status">投放状态趋势</option>
+                    <option value="boost_status">加热状态趋势</option>
+                  </select>
+                  <button class="btn btn-secondary" id="update-trend">更新趋势</button>
+                </div>
+              </div>
+              <div class="trend-charts">
+                <canvas id="trend-chart" width="800" height="300"></canvas>
+              </div>
+              <div class="trend-summary" id="trend-summary">
+                <!-- 趋势分析摘要 -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 规则配置页面 -->
+        <div id="rules-page" class="page">
+          <div class="page-header">
+            <h1>规则配置</h1>
+            <div class="page-actions">
+              <button class="btn btn-primary" id="create-rule">
+                <span>⚡</span>
+                新建规则
+              </button>
+              <button class="btn btn-secondary" id="import-rules">导入规则</button>
+              <button class="btn btn-secondary" id="export-rules">导出规则</button>
+            </div>
+          </div>
+
+          <div class="rules-layout">
+            <!-- 规则列表 -->
+            <div class="rules-sidebar">
+              <div class="rules-header">
+                <h3>规则列表</h3>
+                <div class="rules-filter">
+                  <select id="rule-type-filter">
+                    <option value="all">全部类别</option>
+                    <option value="auto_send_cb">自动送入CB</option>
+                    <option value="auto_delete_cb">自动删除CB</option>
+                  </select>
+                </div>
+              </div>
+              <div class="rules-list" id="rules-list">
+                <!-- 动态填充规则列表 -->
+              </div>
+            </div>
+
+            <!-- 规则编辑器 -->
+            <div class="rules-editor">
+              <div class="editor-header">
+                <h3>规则编辑器</h3>
+              <div class="editor-actions">
+                  <button class="btn btn-success" id="save-rule">保存规则</button>
+                  <button class="btn btn-info" id="test-rule">测试规则</button>
+                  <button class="btn btn-warning" id="add-subrule">添加子规则</button>
+                  <button class="btn btn-danger" id="delete-rule">删除规则</button>
+                  <button class="btn btn-secondary" id="cancel-edit">取消</button>
+              </div>
+              </div>
+              <div class="editor-content" id="rule-editor">
+                <!-- 动态填充编辑器内容 -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Campaign列表页面 -->
+        <div id="campaigns-page" class="page">
+          <div class="page-header">
+            <h1>Campaign列表</h1>
+            <div class="page-actions">
+              <button class="btn btn-primary" id="refresh-campaigns-list">
+                <span>🔄</span>
+                刷新列表
+              </button>
+            </div>
+          </div>
+
+          <!-- Campaign时间筛选器 -->
+          <div class="campaigns-time-filter">
+            <div class="time-filter-header">
+              <h3>📅 时间范围</h3>
+            </div>
+            <div class="time-filter-content">
+              <div class="time-presets">
+                <button class="time-preset-btn" data-days="0">今天</button>
+                <button class="time-preset-btn active" data-days="7">近7天</button>
+                <button class="time-preset-btn" data-days="30">近30天</button>
+                <button class="time-preset-btn" data-days="90">近90天</button>
+                <button class="time-preset-btn" data-custom="true">自定义</button>
+              </div>
+              <div class="custom-date-range" id="campaign-custom-date-range" style="display: none;">
+                <div class="date-input-group">
+                  <label>开始日期:</label>
+                  <input type="date" id="campaign-start-date">
+                </div>
+                <div class="date-input-group">
+                  <label>结束日期:</label>
+                  <input type="date" id="campaign-end-date">
+                </div>
+              </div>
+              <div class="time-filter-actions">
+                <button class="btn btn-primary" id="apply-campaign-time-filter">应用时间范围</button>
+                <span class="current-time-range" id="current-campaign-time-range">当前: 近7天</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="campaigns-content">
+            <div class="campaigns-stats">
+              <div class="stat-card">
+                <div class="stat-number" id="total-campaigns">0</div>
+                <div class="stat-label">总Campaign数</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-number" id="total-cost">$0</div>
+                <div class="stat-label">总花费(7天)</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-number" id="total-revenue">$0</div>
+                <div class="stat-label">总收入(7天)</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-number" id="avg-roi">0</div>
+                <div class="stat-label">平均ROI</div>
+              </div>
+            </div>
+
+            <div class="campaigns-table-container">
+              <div class="table-header">
+                <h3>Campaign详情</h3>
+                <div class="table-info" id="campaigns-count-info">
+                  共 0 个Campaign
+                </div>
+              </div>
+              <div class="campaigns-table" id="campaigns-table">
+                <!-- 动态填充Campaign表格 -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 素材列表页面 -->
+        <div id="materials-page" class="page">
+          <div class="page-header">
+            <h1>素材列表</h1>
+            <div class="page-actions">
+              <button class="btn btn-primary" id="refresh-materials-list">
+                <span>🔄</span>
+                刷新列表
+              </button>
+              <button class="btn btn-secondary" id="refresh-cb-meta" title="忽略缓存，刷新当前页CB数据">刷新CB列</button>
+            </div>
+          </div>
+
+          <div class="materials-filters">
+            <div class="filter-group">
+              <label>Campaign:</label>
+              <select id="materials-campaign-filter">
+                <option value="">选择Campaign</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label>素材状态:</label>
+              <select id="materials-status-filter">
+                <option value="">全部状态</option>
+                <option value="1">排队中</option>
+                <option value="2">学习中</option>
+                <option value="3">投放中</option>
+                <option value="4">未投放</option>
+                <option value="5">加热中</option>
+                <option value="6">加热过</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label>时间范围:</label>
+              <input type="date" id="materials-start-date">
+              <span>至</span>
+              <input type="date" id="materials-end-date">
+            </div>
+            <div class="filter-group">
+              <button class="btn btn-primary" id="apply-materials-filter">应用筛选</button>
+              <button class="btn btn-secondary" id="test-materials-in-cb">测试CB素材数据</button>
+            </div>
+          </div>
+
+          <div class="materials-content">
+            <div class="materials-table" id="materials-table">
+              <!-- 动态填充素材表格 -->
+            </div>
+            <div class="pagination" id="materials-pagination">
+              <button class="btn btn-secondary" id="materials-prev-page">上一页</button>
+              <span id="materials-page-info">第 1 / 1 页</span>
+              <button class="btn btn-secondary" id="materials-next-page">下一页</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 历史记录页面 -->
+        <div id="history-page" class="page">
+          <div class="page-header">
+            <h1>操作历史记录</h1>
+            <div class="page-actions">
+              <button class="btn btn-primary" id="export-history">
+                <span>📤</span>
+                导出历史
+              </button>
+              <button class="btn btn-secondary" id="clear-history">清空历史</button>
+            </div>
+          </div>
+
+          <!-- 筛选条件 -->
+          <div class="history-filters">
+            <div class="filter-group">
+              <label>时间范围:</label>
+              <input type="date" id="history-start-date">
+              <span>至</span>
+              <input type="date" id="history-end-date">
+            </div>
+            <div class="filter-group">
+              <label>操作类型:</label>
+              <select id="history-type-filter">
+                <option value="all">全部</option>
+                <option value="auto_boost">自动加热</option>
+                <option value="auto_delete">自动删除</option>
+                <option value="manual_boost">手动CB</option>
+                <option value="manual_delete">手动删除</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label>Campaign:</label>
+              <select id="history-campaign-filter">
+                <option value="all">全部</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <button class="btn btn-primary" id="apply-history-filter">应用筛选</button>
+            </div>
+          </div>
+
+          <!-- 历史统计 -->
+          <div class="history-stats">
+            <div class="stat-card">
+              <div class="stat-number" id="total-executions">0</div>
+              <div class="stat-label">总执行次数</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number" id="success-rate">0%</div>
+              <div class="stat-label">成功率</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number" id="total-budget-used">$0</div>
+              <div class="stat-label">累计消耗</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number" id="average-efficiency">0%</div>
+              <div class="stat-label">平均效率</div>
+            </div>
+          </div>
+
+          <!-- 历史记录表格 -->
+          <div class="history-table-container">
+            <div class="history-table" id="history-table">
+              <!-- 动态填充历史记录表格 -->
+            </div>
+            <div class="pagination" id="history-pagination">
+              <button class="btn btn-secondary" id="history-prev-page">上一页</button>
+              <span id="history-page-info">第 1 / 1 页</span>
+              <button class="btn btn-secondary" id="history-next-page">下一页</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 任务管理页面 -->
+        <div id="tasks-page" class="page">
+          <div class="page-header">
+            <h1>任务管理</h1>
+            <div class="page-actions">
+              <button class="btn btn-primary" id="create-task">
+                <span>➕</span>
+                新建任务
+              </button>
+              <button class="btn btn-secondary" id="refresh-tasks">刷新任务</button>
+            </div>
+          </div>
+
+          <div class="tasks-content">
+            <div class="tasks-stats">
+              <div class="stat-card">
+                <div class="stat-number" id="active-tasks-count">0</div>
+                <div class="stat-label">活跃任务</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-number" id="paused-tasks-count">0</div>
+                <div class="stat-label">暂停任务</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-number" id="completed-tasks-count">0</div>
+                <div class="stat-label">已完成</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-number" id="failed-tasks-count">0</div>
+                <div class="stat-label">失败任务</div>
+              </div>
+            </div>
+
+            <div class="tasks-table" id="tasks-table">
+              <!-- 动态填充任务表格 -->
+            </div>
+          </div>
+        </div>
+
+        <!-- 系统设置页面 -->
+        <div id="settings-page" class="page">
+          <div class="page-header">
+            <h1>系统设置</h1>
+            <div class="page-actions">
+              <button class="btn btn-primary" id="save-settings">
+                <span>💾</span>
+                保存设置
+              </button>
+              <button class="btn btn-secondary" id="reset-settings">重置设置</button>
+            </div>
+          </div>
+
+          <div class="settings-content">
+            <!-- 基础设置 -->
+            <div class="settings-section">
+              <h3>基础设置</h3>
+              <div class="setting-item">
+                <label>最大并发CB数量:</label>
+                <input type="number" id="max-concurrent-cb" min="1" max="10" value="5">
+                <small>同时进行的CB数量限制</small>
+              </div>
+              <div class="setting-item">
+                <label>CB预算 (美元):</label>
+                <input type="number" id="cb-budget" min="1" max="100" value="10">
+                <small>每个CB的固定预算</small>
+              </div>
+              <div class="setting-item">
+                <label>检查间隔 (分钟):</label>
+                <input type="number" id="check-interval" min="1" max="60" value="5">
+                <small>自动检查任务的时间间隔</small>
+              </div>
+            </div>
+
+            <!-- 预算控制 -->
+            <div class="settings-section">
+              <h3>预算控制</h3>
+              <div class="setting-item">
+                <label>日预算限制 (美元):</label>
+                <input type="number" id="daily-budget-limit" min="10" max="1000" value="100">
+                <small>每日最大消耗限制</small>
+              </div>
+              <div class="setting-item">
+                <label>周预算限制 (美元):</label>
+                <input type="number" id="weekly-budget-limit" min="50" max="5000" value="500">
+                <small>每周最大消耗限制</small>
+              </div>
+              <div class="setting-item">
+                <label>预算警告阈值 (%):</label>
+                <input type="number" id="budget-warning-threshold" min="50" max="95" value="80">
+                <small>达到此百分比时发出警告</small>
+              </div>
+            </div>
+
+            <!-- 通知设置 -->
+            <div class="settings-section">
+              <h3>通知设置</h3>
+              <div class="setting-item">
+                <label>
+                  <input type="checkbox" id="enable-notifications" checked>
+                  启用桌面通知
+                </label>
+                <small>重要事件的桌面通知</small>
+              </div>
+              <div class="setting-item">
+                <label>
+                  <input type="checkbox" id="enable-sound-alerts" checked>
+                  启用声音提醒
+                </label>
+                <small>错误和警告的声音提醒</small>
+              </div>
+              <div class="setting-item">
+                <label>
+                  <input type="checkbox" id="enable-email-reports">
+                  启用邮件报告
+                </label>
+                <small>定期发送执行报告到邮箱</small>
+              </div>
+            </div>
+
+            <!-- 高级设置 -->
+            <div class="settings-section">
+              <h3>高级设置</h3>
+              <div class="setting-item">
+                <label>
+                  <input type="checkbox" id="enable-debug-mode">
+                  启用调试模式
+                </label>
+                <small>显示详细的调试信息</small>
+              </div>
+              <div class="setting-item">
+                <label>
+                  <input type="checkbox" id="auto-backup-data" checked>
+                  自动备份数据
+                </label>
+                <small>定期备份规则和历史数据</small>
+              </div>
+              <div class="setting-item">
+                <label>数据保留天数:</label>
+                <input type="number" id="data-retention-days" min="7" max="365" value="90">
+                <small>历史数据保留时间</small>
+              </div>
+            </div>
+
+            <!-- 系统信息 -->
+            <div class="settings-section">
+              <h3>系统信息</h3>
+              <div class="system-info">
+                <div class="info-item">
+                  <span class="info-label">插件版本:</span>
+                  <span class="info-value" id="plugin-version">2.0.0</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">数据库大小:</span>
+                  <span class="info-value" id="database-size">计算中...</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">最后备份:</span>
+                  <span class="info-value" id="last-backup">从未备份</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">运行时间:</span>
+                  <span class="info-value" id="uptime">计算中...</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- 模态框 -->
+  <div id="modal-overlay" class="modal-overlay">
+    <div class="modal-content" id="modal-content">
+      <!-- 动态填充模态框内容 -->
+    </div>
+  </div>
+
+  <!-- 脚本 -->
+  <script src="manager.js"></script>
+</body>
+</html>
