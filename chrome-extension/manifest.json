@@ -1,0 +1,64 @@
+{
+  "manifest_version": 3,
+  "name": "TikTok GMAX自动化CB管理器 - 增强版",
+  "version": "2.0.0",
+  "description": "智能化的TikTok GMAX CB自动管理工具 - 多设备协调、任务持久化、云端同步",
+
+  "permissions": [
+    "storage",
+    "alarms",
+    "tabs",
+    "activeTab",
+    "notifications",
+    "scripting"
+  ],
+
+  "host_permissions": [
+    "https://ads.tiktok.com/*",
+    "https://api.cloudflare.com/*"
+  ],
+
+  "background": {
+    "service_worker": "background/enhanced-background.js",
+    "type": "module"
+  },
+
+  "content_scripts": [
+    {
+      "matches": [
+        "https://ads.tiktok.com/*"
+      ],
+      "js": [
+        "content/tiktok-content.js"
+      ],
+      "run_at": "document_start"
+    }
+  ],
+
+  "action": {
+    "default_title": "TikTok GMAX CB自动化 - 增强版"
+  },
+
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "content/tiktok-bridge.js",
+        "content/styles.css",
+        "background/lib/task-state.js",
+        "background/lib/unified-storage.js",
+        "background/lib/device-coordinator.js",
+        "background/lib/enhanced-task-manager.js"
+      ],
+      "matches": [
+        "https://ads.tiktok.com/*"
+      ]
+    }
+  ],
+
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}
